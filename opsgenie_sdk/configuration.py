@@ -176,10 +176,9 @@ class Configuration(six.with_metaclass(TypeWithDefault, object)):
             # turn on httplib debug
             httplib.HTTPConnection.debuglevel = 1
         else:
-            # if debug status is False, turn off debug logging,
-            # setting log level to default `logging.WARNING`
+            # if debug status is False, turn off debug logging
             for _, logger in six.iteritems(self.logger):
-                logger.setLevel(logging.WARNING)
+                logger.setLevel(logging.NOTSET)
             # turn off httplib debug
             httplib.HTTPConnection.debuglevel = 0
 

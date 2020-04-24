@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import copy
 import datetime
 import json
+import logging
 import mimetypes
 from multiprocessing.pool import ThreadPool
 import os
@@ -33,6 +34,7 @@ from opsgenie_sdk import metrics
 from opsgenie_sdk import rest
 from opsgenie_sdk.configuration import Configuration
 from opsgenie_sdk.exceptions import ApiValueError, RetryableException
+from tenacity import before_sleep_log
 
 
 class ApiClient(object):
@@ -81,7 +83,8 @@ class ApiClient(object):
                                           wait=tenacity.wait_random_exponential(multiplier=configuration.back_off,
                                                                                 max=configuration.retry_delay),
                                           retry=(tenacity.retry_if_exception_type(RetryableException) |
-                                                 (tenacity.retry_if_exception_type(HTTPError))))
+                                                 (tenacity.retry_if_exception_type(HTTPError))),
+                                          before_sleep=before_sleep_log(logging.getLogger("opsgenie_sdk"), logging.INFO, exc_info=True))
 
         self.rest_client = rest.RESTClientObject(configuration, retrying=self.retrying)
         self.default_headers = {}
